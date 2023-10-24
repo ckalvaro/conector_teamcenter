@@ -14,21 +14,6 @@ using Teamcenter.Hello;
 namespace Teamcenter.hello23
 {
 
-    class VectorDatos
-    {
-        public List<string> Vector = new List<string>();
-        public void printVector()
-        {
-            Console.WriteLine("Vector: ");
-            for (int k = 0; k < Vector.Count; k++)
-            {
-                Console.WriteLine(Vector[k]);
-            }
-        }
-    }
-
-    
-
     class ShowBOM
     {
         private String ItemUID; /*** user supplied Item UID with BOM structure ***/
@@ -38,10 +23,10 @@ namespace Teamcenter.hello23
 
         private Item item;
 
-        
+
 
         public ShowBOM(string itemUID)
-        {   
+        {
             this.ItemUID = itemUID;
             dmService = Teamcenter.Services.Strong.Core.DataManagementService.getService(Teamcenter.ClientX.Session.getConnection());
             structureService = Teamcenter.Services.Strong.Cad.StructureManagementService.getService(Teamcenter.ClientX.Session.getConnection());
@@ -66,14 +51,7 @@ namespace Teamcenter.hello23
 
             return false;
         }
-        /** public void printVector()
-        {
-            Console.WriteLine("Vector: ");
-            for (int k = 0; k < vector.Count; k++)
-            {              
-                Console.WriteLine(vector[k]);
-            }
-        } **/
+    
         public bool showBOMWindowStructure(List<ItemLine> registros)
         {
             try
@@ -145,7 +123,7 @@ namespace Teamcenter.hello23
         private void expandBOMLines(BOMLine bomLine, List<ItemLine> registros)
         {
 
-            
+
 
             Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSOneLevelInfo levelInfo = new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSOneLevelInfo();
             Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSOneLevelPref levelPref = new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSOneLevelPref();
@@ -157,16 +135,16 @@ namespace Teamcenter.hello23
             levelPref.Info = new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.RelationAndTypesFilter[0];
 
             Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSOneLevelResponse levelResp = structureService.ExpandPSOneLevel(levelInfo, levelPref);
-            
+
             //int contador = 0;
             try
             {
-                ItemLine objeto = new ItemLine(bomLine.Bl_item_item_id, bomLine.Bl_line_name, bomLine.Bl_level_starting_0, bomLine.Bl_rev_object_desc);
+                ItemLine objeto = new ItemLine(bomLine.Bl_item_item_id, bomLine.Bl_line_name, bomLine.Bl_level_starting_0, bomLine.Bl_rev_object_desc, bomLine.Bl_formatted_parent_name);
                 registros.Add(objeto);
                 //Vector.Add("BOMLine: " + bomLine.Bl_line_name);
                 //Vector.Add(" -N: " + bomLine.Bl_level_starting_0.ToString());
-                
-                
+
+
                 //contador++;
                 //Console.WriteLine("BOMLine: " + bomLine.Bl_line_name);
             }
@@ -194,7 +172,7 @@ namespace Teamcenter.hello23
 
             policy.AddType(new PolicyType("Item", new string[] { "bom_view_tags", "revision_list" }));
             //ACA HAY QUE AGREGAR LOS DATOS QUE QUEREMOS RECUPERAR DEL ITEM, PARA GUARDAR EN LA CLASE BOMLine
-            policy.AddType(new PolicyType("BOMLine", new string[] { "bl_line_name", "bl_level_starting_0", "bl_item_item_id", "bl_rev_object_desc" }));
+            policy.AddType(new PolicyType("BOMLine", new string[] { "bl_line_name", "bl_level_starting_0", "bl_item_item_id", "bl_rev_object_desc", "bl_formatted_parent"}));
 
             session.SetObjectPropertyPolicy(policy);
         }

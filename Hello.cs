@@ -15,7 +15,7 @@ using Microsoft.Win32;
 using OfficeOpenXml;
 
 namespace Teamcenter.Hello
-{
+{   
     public class ItemLine
     {
         public string id { get; set; }
@@ -23,13 +23,16 @@ namespace Teamcenter.Hello
         public int nivel { get; set; }
         public string aux { get; set; }
 
-        public ItemLine(string id, string name, int nivel, string aux)
+        public string padre { get; set; }
+
+        public ItemLine(string id, string name, int nivel, string aux, string padre)
 
         {
             this.id = id;
             this.name = name;
             this.nivel = nivel;
             this.aux = aux;
+            this.padre = padre;
         }
 
     }
@@ -83,7 +86,6 @@ namespace Teamcenter.Hello
 
                 // Perform a simple query of the database
                 ModelObject[] lista_objetos = query.queryItems();
-                Console.ReadLine();
                 int y = lista_objetos.Length;
                 for (int z = 0; z < y; z++)
                 {
@@ -106,6 +108,7 @@ namespace Teamcenter.Hello
                     worksheet.Cells["B1"].Value = "NOMBRE";
                     worksheet.Cells["D1"].Value = "NIVEL";
                     worksheet.Cells["C1"].Value = "DESCRIPCION";
+                    worksheet.Cells["E1"].Value = "PADRE";
 
                     // Llenar el archivo Excel con los datos de la lista de objetos
                     int row = 2;
@@ -115,6 +118,7 @@ namespace Teamcenter.Hello
                         worksheet.Cells["B" + row].Value = objeto.name;
                         worksheet.Cells["C" + row].Value = objeto.aux;
                         worksheet.Cells["D" + row].Value = objeto.nivel;
+                        worksheet.Cells["E" + row].Value = objeto.padre;
                         row++;
                     }
 
@@ -125,15 +129,6 @@ namespace Teamcenter.Hello
 
                 Console.WriteLine("El archivo Excel ha sido creado.");
 
-                /*
-                foreach (ItemLine reg in registros) 
-                {
-                    Console.WriteLine($"Id: {reg.id} - Name: {reg.name} - Nivel: {reg.nivel} - AUX: {reg.aux}");
-                    Console.WriteLine("-- Enter para seguir --");
-                    Console.ReadLine();
-
-                }
-                */
                 // Show BOM
                 //ShowBOM showBOM = new ShowBOM("g6AAAEBeZOa2mD");
                 //showBOM.loadItem();
