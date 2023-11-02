@@ -9,6 +9,7 @@ using Teamcenter.Soa.Exceptions;
 using Teamcenter.Services.Strong.Structuremanagement._2008_06.Structure;
 using System.Linq;
 using Teamcenter.Hello;
+using Teamcenter.Services.Strong.Structuremanagement._2012_02.IncrementalChange;
 
 
 namespace Teamcenter.hello23
@@ -47,6 +48,14 @@ namespace Teamcenter.hello23
                     item = mObj as Item;
                     return true;
                 }
+                /*
+                else
+                {
+                    Console.WriteLine("Paso algo por aca");
+                    Console.WriteLine(mObj);
+                    Console.ReadLine();
+                }
+                */
             }
 
             return false;
@@ -59,15 +68,16 @@ namespace Teamcenter.hello23
                 ModelObject[] itemRevs = item.Revision_list;
                 ModelObject[] bomViews = item.Bom_view_tags;
 
+
                 foreach (ModelObject bomView in bomViews)
                 {
                     foreach (ModelObject itemRev in itemRevs)
                     {
                         Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.CreateBOMWindowsInfo bomWinInfo = new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.CreateBOMWindowsInfo();
-
                         bomWinInfo.Item = item;
                         bomWinInfo.ItemRev = (ItemRevision)itemRev;
                         bomWinInfo.BomView = (PSBOMView)bomView;
+
 
                         Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.CreateBOMWindowsResponse bomResp = structureService.CreateBOMWindows(new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.CreateBOMWindowsInfo[] { bomWinInfo });
 
@@ -92,7 +102,7 @@ namespace Teamcenter.hello23
 
             return false;
         }
-
+        /*
         private void expandBOMAllLines(BOMLine bomLine)
         {
             Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSAllLevelsInfo info = new Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSAllLevelsInfo();
@@ -108,18 +118,19 @@ namespace Teamcenter.hello23
 
             foreach (Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSAllLevelsOutput data in resp.Output)
             {
-                Console.WriteLine("Parent: " + data.Parent.BomLine.Bl_line_name); // + " -N " + data.Parent.BomLine.Bl_level_starting_0);
+                Console.WriteLine("Parent: " + data.Parent.BomLine.Bl_line_name); 
 
                 if (data.Children.Length > 0)
                 {
                     foreach (Teamcenter.Services.Strong.Cad._2007_01.StructureManagement.ExpandPSData child in data.Children)
 
-                        Console.WriteLine("\tChild: " + child.BomLine.Bl_line_name); //+ " -N " + child.BomLine.Bl_level_starting_0);
+                        Console.WriteLine("\tChild: " + child.BomLine.Bl_line_name); 
                 }
                 else
                     Console.WriteLine("\tChildren: none");
             }
         }
+        */
         private void expandBOMLines(BOMLine bomLine, List<ItemLine> registros)
         {
 
@@ -139,14 +150,8 @@ namespace Teamcenter.hello23
             //int contador = 0;
             try
             {
-                ItemLine objeto = new ItemLine(bomLine.Bl_item_item_id, bomLine.Bl_line_name, bomLine.Bl_level_starting_0, bomLine.Bl_rev_object_desc, bomLine.Bl_formatted_parent_name);
+                ItemLine objeto = new ItemLine(bomLine.Bl_item_item_id, bomLine.Bl_line_name, bomLine.Bl_level_starting_0, bomLine.Bl_formatted_parent_name, bomLine.Bl_num_children);
                 registros.Add(objeto);
-                //Vector.Add("BOMLine: " + bomLine.Bl_line_name);
-                //Vector.Add(" -N: " + bomLine.Bl_level_starting_0.ToString());
-
-
-                //contador++;
-                //Console.WriteLine("BOMLine: " + bomLine.Bl_line_name);
             }
             catch (NotLoadedException e)
             {
@@ -172,7 +177,7 @@ namespace Teamcenter.hello23
 
             policy.AddType(new PolicyType("Item", new string[] { "bom_view_tags", "revision_list" }));
             //ACA HAY QUE AGREGAR LOS DATOS QUE QUEREMOS RECUPERAR DEL ITEM, PARA GUARDAR EN LA CLASE BOMLine
-            policy.AddType(new PolicyType("BOMLine", new string[] { "bl_line_name", "bl_level_starting_0", "bl_item_item_id", "bl_rev_object_desc", "bl_formatted_parent"}));
+            policy.AddType(new PolicyType("BOMLine", new string[] { "bl_line_name", "bl_level_starting_0", "bl_item_item_id", "bl_formatted_parent_name", "bl_num_children" }));
 
             session.SetObjectPropertyPolicy(policy);
         }

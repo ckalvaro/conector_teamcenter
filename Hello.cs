@@ -21,18 +21,19 @@ namespace Teamcenter.Hello
         public string id { get; set; }
         public string name { get; set; }
         public int nivel { get; set; }
-        public string aux { get; set; }
 
         public string padre { get; set; }
 
-        public ItemLine(string id, string name, int nivel, string aux, string padre)
+        public int cant_hijos { get; set; }
+
+        public ItemLine(string id, string name, int nivel, string padre, int cant_hijos)
 
         {
             this.id = id;
             this.name = name;
             this.nivel = nivel;
-            this.aux = aux;
             this.padre = padre;
+            this.cant_hijos = cant_hijos;
         }
 
     }
@@ -44,7 +45,7 @@ namespace Teamcenter.Hello
         public static void Main(string[] args)
         {
 
-            String serverHost = "http://Server-PIL:85/tc";
+            String serverHost = "http://10.10.10.105:85/tc";
             List<ItemLine> registros = new List<ItemLine>();
 
 
@@ -106,9 +107,9 @@ namespace Teamcenter.Hello
                     // Encabezados
                     worksheet.Cells["A1"].Value = "ITEM ID";
                     worksheet.Cells["B1"].Value = "NOMBRE";
-                    worksheet.Cells["D1"].Value = "NIVEL";
-                    worksheet.Cells["C1"].Value = "DESCRIPCION";
-                    worksheet.Cells["E1"].Value = "PADRE";
+                    worksheet.Cells["C1"].Value = "NIVEL";
+                    worksheet.Cells["D1"].Value = "PADRE";
+                    worksheet.Cells["E1"].Value = "CANT HIJOS";
 
                     // Llenar el archivo Excel con los datos de la lista de objetos
                     int row = 2;
@@ -116,19 +117,19 @@ namespace Teamcenter.Hello
                     {
                         worksheet.Cells["A" + row].Value = objeto.id;
                         worksheet.Cells["B" + row].Value = objeto.name;
-                        worksheet.Cells["C" + row].Value = objeto.aux;
-                        worksheet.Cells["D" + row].Value = objeto.nivel;
-                        worksheet.Cells["E" + row].Value = objeto.padre;
+                        worksheet.Cells["C" + row].Value = objeto.nivel;
+                        worksheet.Cells["D" + row].Value = objeto.padre;
+                        worksheet.Cells["E" + row].Value = objeto.cant_hijos;
                         row++;
                     }
 
                     // Guardar el archivo Excel en disco
-                    var file = new System.IO.FileInfo("Registros.xlsx");
+                    var file = new System.IO.FileInfo("C:\\temp\\Registros.xlsx");
                     package.SaveAs(file);
                 }
-
+                Console.WriteLine("-------* BOM *-------");
                 Console.WriteLine("El archivo Excel ha sido creado.");
-
+                
                 // Show BOM
                 //ShowBOM showBOM = new ShowBOM("g6AAAEBeZOa2mD");
                 //showBOM.loadItem();

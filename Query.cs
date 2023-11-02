@@ -37,100 +37,100 @@ public class Query
     public ModelObject[] queryItems()
     {
 
-        ImanQuery query = null;
+            ImanQuery query = null;
 
-        // Get the service stub
-        SavedQueryService queryService  = SavedQueryService.getService(Session.getConnection());
-        DataManagementService dmService = DataManagementService.getService(Session.getConnection());
+            // Get the service stub
+            SavedQueryService queryService = SavedQueryService.getService(Session.getConnection());
+            DataManagementService dmService = DataManagementService.getService(Session.getConnection());
 
-        try
-        {
- 
-            // *****************************
-            // Execute the service operation
-            // *****************************
-            GetSavedQueriesResponse savedQueries = queryService.GetSavedQueries();
-            
-            
-            if (savedQueries.Queries.Length == 0)
+            try
             {
-                Console.Out.WriteLine("There are no saved queries in the system.");
+
+                // *****************************
+                // Execute the service operation
+                // *****************************
+                GetSavedQueriesResponse savedQueries = queryService.GetSavedQueries();
+
+
+                if (savedQueries.Queries.Length == 0)
+                {
+                    Console.Out.WriteLine("There are no saved queries in the system.");
+                    return null;
+                }
+
+                // Find one called 'Item Name'
+                for (int i = 0; i < savedQueries.Queries.Length; i++)
+                {
+
+                    if (savedQueries.Queries[i].Name.Equals("Item ID"))
+                    {
+                        query = savedQueries.Queries[i].Query;
+                        break;
+                    }
+                }
+            }
+            catch (ServiceException e)
+            {
+                Console.Out.WriteLine("GetSavedQueries service request failed.");
+                Console.Out.WriteLine(e.Message);
                 return null;
             }
 
-            // Find one called 'Item Name'
-            for (int i = 0; i < savedQueries.Queries.Length; i++)
+            if (query == null)
             {
+                Console.WriteLine("There is not an 'Item ID' query.");
+                return null;
+            }
 
-                if (savedQueries.Queries[i].Name.Equals("Item Name"))
+            try
+            {
+                // Search for all Items, returning a maximum of 25 objects
+                QueryInput[] savedQueryInput = new QueryInput[1];
+                savedQueryInput[0] = new QueryInput();
+                savedQueryInput[0].Query = query;
+                savedQueryInput[0].MaxNumToReturn = 50;
+                savedQueryInput[0].LimitList = new Teamcenter.Soa.Client.Model.ModelObject[0];
+                savedQueryInput[0].Entries = new String[] { "Item ID" };
+                savedQueryInput[0].Values = new String[1];
+                savedQueryInput[0].Values[0] = "MCB000121";
+
+                //*****************************
+                //Execute the service operation
+                //*****************************
+                SavedQueriesResponse savedQueryResult = queryService.ExecuteSavedQueries(savedQueryInput);
+                QueryResults found = savedQueryResult.ArrayOfResults[0];
+
+
+                //System.Console.Out.WriteLine("");
+                //System.Console.Out.WriteLine("Found Items:");
+
+                // Page through the results 10 at a time
+                for (int i = 0; i < found.ObjectUIDS.Length; i += 10)
                 {
-                    query = savedQueries.Queries[i].Query;
-                    break;
+                    int pageSize = (i + 10 < found.ObjectUIDS.Length) ? 10 : found.ObjectUIDS.Length - i;
+
+                    String[] uids = new String[pageSize];
+                    for (int j = 0; j < pageSize; j++)
+                    {
+                        uids[j] = found.ObjectUIDS[i + j];
+                    }
+                    ServiceData sd = dmService.LoadObjects(uids);
+                    ModelObject[] foundObjs = new ModelObject[sd.sizeOfPlainObjects()];
+                    for (int k = 0; k < sd.sizeOfPlainObjects(); k++)
+                    {
+                        foundObjs[k] = sd.GetPlainObject(k);
+                    }
+
+                    //Session.printObjects(foundObjs);
+                    return foundObjs;
                 }
             }
-        }
-        catch (ServiceException e)
-        {
-            Console.Out.WriteLine("GetSavedQueries service request failed.");
-            Console.Out.WriteLine(e.Message);
-            return null;
-        }
-
-        if (query == null)
-        {
-            Console.WriteLine("There is not an 'Item Name' query.");
-            return null;
-        }
-
-        try
-        {
-            // Search for all Items, returning a maximum of 25 objects
-            QueryInput[] savedQueryInput = new QueryInput[1];
-            savedQueryInput[0] = new QueryInput();
-            savedQueryInput[0].Query = query;
-            savedQueryInput[0].MaxNumToReturn = 50;
-            savedQueryInput[0].LimitList = new Teamcenter.Soa.Client.Model.ModelObject[0];
-            savedQueryInput[0].Entries = new String[] { "Item Name" };
-            savedQueryInput[0].Values = new String[1];
-            savedQueryInput[0].Values[0] = "*";
-           
-            //*****************************
-            //Execute the service operation
-            //*****************************
-            SavedQueriesResponse savedQueryResult = queryService.ExecuteSavedQueries(savedQueryInput);
-            QueryResults found = savedQueryResult.ArrayOfResults[0]; 
-           
-                    
-            //System.Console.Out.WriteLine("");
-            //System.Console.Out.WriteLine("Found Items:");
-
-            // Page through the results 10 at a time
-            for (int i = 0; i < found.ObjectUIDS.Length; i += 10)
+            catch (ServiceException e)
             {
-                int pageSize = (i + 10 < found.ObjectUIDS.Length) ? 10 : found.ObjectUIDS.Length - i;
-
-                String[] uids = new String[pageSize];
-                for (int j = 0; j < pageSize; j++)
-                {
-                    uids[j] = found.ObjectUIDS[i + j];
-                }
-                ServiceData sd = dmService.LoadObjects(uids);
-                ModelObject[] foundObjs = new ModelObject[sd.sizeOfPlainObjects()];
-                for (int k = 0; k < sd.sizeOfPlainObjects(); k++)
-                {
-                    foundObjs[k] = sd.GetPlainObject(k);
-                }
-
-                //Session.printObjects(foundObjs);
-                return foundObjs;
+                Console.Out.WriteLine("ExecuteSavedQuery service request failed.");
+                Console.Out.WriteLine(e.Message);
+                return null;
             }
-        }
-        catch (ServiceException e)
-        {
-            Console.Out.WriteLine("ExecuteSavedQuery service request failed.");
-            Console.Out.WriteLine(e.Message);
-            return null;
-        }
             return null;
     }
 }
